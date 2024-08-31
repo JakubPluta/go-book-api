@@ -7,13 +7,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/JakubPluta/go-book-api/config"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 )
 
 const (
-	dialect      = "pgx"
-	dbConnString = "host=localhost port=5432 user=user password=passw0rd dbname=books sslmode=disable"
+	dialect     = "pgx"
+	fmtDBString = "host=%s user=%s password=%s dbname=%s port=%d sslmode=disable"
 )
 
 var (
@@ -59,6 +60,9 @@ func main() {
 	}
 
 	cmd := args[0]
+
+	c := config.NewDB()
+	dbConnString := fmt.Sprintf(fmtDBString, c.Host, c.Username, c.Password, c.DBName, c.Port)
 
 	db, err := goose.OpenDBWithDriver(dialect, dbConnString)
 	if err != nil {

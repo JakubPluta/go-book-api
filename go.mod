@@ -4,6 +4,7 @@ go 1.22.3
 
 require (
 	github.com/jackc/pgx/v5 v5.6.0
+	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
 	github.com/pressly/goose/v3 v3.21.1
 )
 

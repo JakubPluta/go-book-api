@@ -1,25 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"time"
+
+	"github.com/JakubPluta/go-book-api/config"
 )
 
 func main() {
+	config := config.New()
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", hello)
 
 	s := &http.Server{
-		Addr:         ":8080",
+		Addr:         fmt.Sprintf(":%d", config.Server.Port),
 		Handler:      mux,
-		ReadTimeout:  2 * time.Second,
-		WriteTimeout: 2 * time.Second,
-		IdleTimeout:  5 * time.Second,
+		ReadTimeout:  config.Server.TimeoutRead,
+		WriteTimeout: config.Server.TimeoutWrite,
+		IdleTimeout:  config.Server.TimeoutIdle,
 	}
-	log.Println("Listening on :8080")
+	log.Println("Listening on :", s.Addr)
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal("Server startup failed: ", err)
 	}
