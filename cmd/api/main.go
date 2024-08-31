@@ -2,22 +2,29 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
+	"github.com/JakubPluta/go-book-api/api/router"
 	"github.com/JakubPluta/go-book-api/config"
 )
 
+//  @title          Books API
+//  @version        1.0
+//  @description    This is a Books RESTful API with a CRUD
+
+//  @contact.name   Jakub Pluta
+//  @contact.url    https://github.com/JakubPluta
+
+// @host       localhost:8080
+// @basePath   /v1
 func main() {
 	config := config.New()
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", hello)
+	r := router.New()
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", config.Server.Port),
-		Handler:      mux,
+		Handler:      r,
 		ReadTimeout:  config.Server.TimeoutRead,
 		WriteTimeout: config.Server.TimeoutWrite,
 		IdleTimeout:  config.Server.TimeoutIdle,
@@ -27,8 +34,4 @@ func main() {
 		log.Fatal("Server startup failed: ", err)
 	}
 
-}
-
-func hello(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello, World!")
 }
