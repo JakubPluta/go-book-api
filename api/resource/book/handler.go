@@ -2,6 +2,7 @@ package book
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	e "github.com/JakubPluta/go-book-api/api/resource/common/errors"
+	validatorUtil "github.com/JakubPluta/go-book-api/util/validator"
 )
 
 type API struct {
@@ -108,6 +110,12 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 		e.ServerError(w, e.RespJSONDecodeFailure)
 		return
 	}
+
+	if err := a.validator.Struct(form); err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	newBook := form.ToModel()
 	newBook.ID = uuid.New()
 
@@ -138,13 +146,23 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 func (a *API) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		e.ServerError(w, e.RespInvalidURLParamID)
+		e.BadRequest(w, e.RespInvalidURLParamID)
 		return
 	}
 
 	form := &Form{}
 	if err := json.NewDecoder(r.Body).Decode(form); err != nil {
 		e.ServerError(w, e.RespJSONDecodeFailure)
+		return
+	}
+
+	if err := a.validator.Struct(form); err != nil {
+		respBody, err := json.Marshal(validatorUtil.ToErrResponse(err))
+		if err != nil {
+			e.ServerError(w, e.RespJSONEncodeFailure)
+			return
+		}
+		e.ValidationErrors(w, respBody)
 		return
 	}
 
