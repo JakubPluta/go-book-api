@@ -11,6 +11,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
+
+	validatorUtil "github.com/JakubPluta/go-book-api/util/validator"
 )
 
 const fmtDBString = "host=%s user=%s password=%s dbname=%s port=%d sslmode=disable"
@@ -26,6 +28,8 @@ const fmtDBString = "host=%s user=%s password=%s dbname=%s port=%d sslmode=disab
 // @basePath   /v1
 func main() {
 	c := config.New()
+	v := validatorUtil.New()
+
 	var logLevel gormlogger.LogLevel
 	if c.DB.Debug {
 		logLevel = gormlogger.Info
@@ -40,7 +44,7 @@ func main() {
 		return
 	}
 
-	r := router.New(db)
+	r := router.New(db, v)
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", c.Server.Port),
 		Handler:      r,
